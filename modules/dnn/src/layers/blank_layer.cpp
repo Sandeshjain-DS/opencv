@@ -125,7 +125,7 @@ public:
 
         InferenceEngine::Builder::Layer ieLayer(name);
         ieLayer.setName(name);
-        if (preferableTarget == DNN_TARGET_MYRIAD)
+        if (preferableTarget == DNN_TARGET_MYRIAD || preferableTarget == DNN_TARGET_HDDL)
         {
             ieLayer.setType("Copy");
         }
@@ -147,7 +147,7 @@ public:
                                         const std::vector<Ptr<BackendNode> >& nodes) CV_OVERRIDE
     {
         auto& ieInpNode = nodes[0].dynamicCast<InfEngineNgraphNode>()->node;
-        ngraph::NodeVector inp{ieInpNode};
+        ngraph::OutputVector inp{ieInpNode};
         auto blank = std::make_shared<ngraph::op::Concat>(inp, 0);
         return Ptr<BackendNode>(new InfEngineNgraphNode(blank));
     }

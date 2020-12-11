@@ -54,7 +54,8 @@
 #endif
 
 #if defined __linux__ || defined __APPLE__ || defined __GLIBC__ \
-    || defined __HAIKU__ || defined __EMSCRIPTEN__
+    || defined __HAIKU__ || defined __EMSCRIPTEN__ || defined __FreeBSD__ \
+    || defined __OpenBSD__
     #include <unistd.h>
     #include <stdio.h>
     #include <sys/types.h>
@@ -95,6 +96,9 @@
 */
 
 #if defined HAVE_TBB
+    #ifndef TBB_SUPPRESS_DEPRECATED_MESSAGES  // supress warning
+    #define TBB_SUPPRESS_DEPRECATED_MESSAGES 1
+    #endif
     #include "tbb/tbb.h"
     #include "tbb/task.h"
     #include "tbb/tbb_stddef.h"
@@ -638,9 +642,9 @@ int getNumThreads(void)
 
 #elif defined HAVE_CONCURRENCY
 
-    return 1 + (pplScheduler == 0
+    return (pplScheduler == 0)
         ? Concurrency::CurrentScheduler::Get()->GetNumberOfVirtualProcessors()
-        : pplScheduler->GetNumberOfVirtualProcessors());
+        : (1 + pplScheduler->GetNumberOfVirtualProcessors());
 
 #elif defined HAVE_PTHREADS_PF
 
